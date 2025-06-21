@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{authblk}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+\title{A Mathematical Proof of Concept: Quantum Linear Regression on the Thai SET Index via Hamiltonian Formulation}
+\author{Methanon Kaeokrachang}
+\affil{Bangkok, Thailand}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present a proof of concept that demonstrates how quantum linear regression can be applied to financial forecasting of the Thai SET Index. Through the variational quantum approach, we reformulate the classical loss function as a quantum Hamiltonian and express weights as expectation values of Pauli-Z measurements. This work formalizes the mapping from classical regression to quantum optimization and includes explicit matrix forms for pedagogical clarity.
+\end{abstract}
+
+\section{Introduction}
+Linear regression remains a fundamental tool in financial modeling. With the rise of quantum computing, variational quantum algorithms allow weights to be encoded into quantum states, and loss functions to be represented as Hamiltonians. We demonstrate the full formulation of such a quantum linear regression framework and explain how it applies to predicting Thailand's SET Index.
+
+\section{Classical Linear Regression}
+Let dataset $\mathcal{D} = \{(x_i, y_i)\}_{i=1}^N$, where $x_i \in \mathbb{R}^d$ are features (e.g., price, volume), and $y_i \in \mathbb{R}$ are targets (e.g., SET index change).
+
+The prediction:
+\[
+\hat{y}_i = \sum_{j=1}^d w_j x_{ij}
+\]
+
+The squared loss is:
+\[
+L_i = (y_i - \hat{y}_i)^2 = \left(y_i - \sum_{j=1}^d w_j x_{ij} \right)^2
+\]
+
+\section{Quantum Encoding of Weights}
+We encode weights $w_j$ as expectation values of a quantum observable:
+
+\[
+w_j \approx \langle Z_j \rangle = \bra{\psi(\theta_j)} Z \ket{\psi(\theta_j)}
+\]
+with
+\[
+\ket{\psi(\theta_j)} = R_y(\theta_j) \ket{0}
+\]
+
+\subsection*{Matrix Form of $Z$ Observable}
+The Pauli-Z operator is defined as:
+\[
+Z = 
+\begin{bmatrix}
+1 & 0 \\
+0 & -1
+\end{bmatrix}
+\]
+
+\subsection*{Resulting Prediction Function}
+\[
+\hat{y}_i = \sum_{j=1}^d x_{ij} \langle Z_j \rangle
+\]
+
+\section{Hamiltonian Construction for Loss}
+Now express the squared loss as a Hamiltonian:
+
+\[
+L_i = \left( y_i - \sum_{j=1}^d x_{ij} \langle Z_j \rangle \right)^2
+\]
+
+This expands to:
+\[
+L_i = y_i^2 - 2 y_i \sum_j x_{ij} \langle Z_j \rangle + \sum_{j,k} x_{ij} x_{ik} \langle Z_j Z_k \rangle
+\]
+
+Thus, the Hamiltonian $\hat{H}_i$ for each data point becomes:
+\[
+\hat{H}_i = y_i^2 I - 2 y_i \sum_j x_{ij} Z_j + \sum_{j,k} x_{ij} x_{ik} Z_j Z_k
+\]
+
+\subsection*{Matrix Form for $Z_j Z_k$}
+Let’s show $Z \otimes Z$:
+\[
+Z \otimes Z = 
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & -1 & 0 & 0 \\
+0 & 0 & -1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\]
+
+\section{Global Loss as Expectation}
+Prepare $d$-qubit quantum state:
+\[
+\ket{\psi(\bm{\theta})} = \bigotimes_{j=1}^d R_y(\theta_j) \ket{0}
+\]
+
+Compute global loss:
+\[
+\mathcal{L}(\bm{\theta}) = \sum_{i=1}^N \bra{\psi(\bm{\theta})} \hat{H}_i \ket{\psi(\bm{\theta})}
+\]
+
+\subsection*{Example: 1-Feature Case}
+For a single feature $x$, with 1 qubit:
+\[
+L_i = (y_i - x_i \langle Z \rangle)^2
+\]
+\[
+\Rightarrow \hat{H}_i = y_i^2 I - 2 y_i x_i Z + x_i^2 Z^2
+\]
+Since \( Z^2 = I \), we simplify:
+\[
+\hat{H}_i = (y_i^2 + x_i^2) I - 2 y_i x_i Z
+\]
+
+\section{Optimization Objective}
+Goal:
+\[
+\bm{\theta}^* = \arg \min_{\bm{\theta}} \mathcal{L}(\bm{\theta})
+\]
+
+Use classical optimizer (e.g., gradient descent or COBYLA) to update $\bm{\theta}$ by querying quantum measurements for loss and gradients.
+
+\section{Relevance to SET Index Forecasting}
+- Thai SET Index reflects price momentum and short-term linear relationships.
+- Quantum linear models can capture such trends with fewer qubits.
+- Technical features (moving average, RSI, etc.) can form $x_i$ vectors.
+
+\section{Conclusion}
+We demonstrated the mathematical equivalence between classical linear regression and its quantum formulation via variational states and Pauli Hamiltonians. This work can support future quantum experiments for real-world finance, including forecasting of the SET Index using Qiskit on both simulators and real quantum devices.
+
+\section*{References}
+\begin{enumerate}
+    \item Schuld, M., Sinayskiy, I., \& Petruccione, F. (2014). The quest for a quantum neural network. \emph{Quantum Information Processing}, 13(11), 2567–2586.
+    \item Mitarai, K., Negoro, M., Kitagawa, M., \& Fujii, K. (2018). Quantum circuit learning. \emph{Physical Review A}, 98(3), 032309.
+    \item Qiskit Textbook. \url{https://qiskit.org/textbook}
+\end{enumerate}
+
+\end{document}
